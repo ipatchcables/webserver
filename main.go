@@ -36,7 +36,7 @@ func init() {
 func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/process", process)
-	log.Fatal(http.ListenAndServeTLS("10.0.0.11:443", "server.crt", "server.key", nil))
+	log.Fatal(http.ListenAndServe("172.20.20.20:80", nil))
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
